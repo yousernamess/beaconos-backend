@@ -37,13 +37,15 @@ class LearningPreference(models.Model):
 
 class Course(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    learning_preference = models.OneToOneField('LearningPreference', on_delete=models.CASCADE)
+    learning_preference = models.ForeignKey('LearningPreference', on_delete=models.PROTECT)
+
     title = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True) #Rahul edited this line by himself
+    description = models.TextField(null=True, blank=True)  # Rahul edited this line by himself
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.title} (for {self.user.username})"
+
 
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
@@ -54,6 +56,7 @@ class Module(models.Model):
 
     class Meta:
         ordering = ['order']
+        unique_together = ('course', 'order')
 
     def __str__(self):
         return f"{self.title} (Module {self.order})"
@@ -68,6 +71,7 @@ class Section(models.Model):
 
     class Meta:
         ordering = ['order']
+        unique_together = ('module', 'order')
 
     def __str__(self):
         return f"{self.title} (Section {self.order})"
@@ -83,6 +87,7 @@ class Lesson(models.Model):
 
     class Meta:
         ordering = ['order']
+        unique_together = ('section', 'order')
 
     def __str__(self):
         return f"{self.title} (Lesson {self.order})"
@@ -102,6 +107,7 @@ class UserCourseProgress(models.Model):
     def __str__(self):
         return f"{self.user.username}'s progress on {self.course.title}"
 
+
 class RecentActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -114,3 +120,6 @@ class RecentActivity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} viewed {self.lesson.title} on {self.viewed_at}"
+
+
+
